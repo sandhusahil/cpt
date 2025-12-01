@@ -1,647 +1,296 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>The Code — Apple-style Responsive Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPT – Code of Personal Transformation</title>
 
-  <!--
-    Combined single-file build:
-    - HTML, CSS and JS are all in this file for easy demo / deploy.
-    - For exact SF Pro Display/Text, install locally or add @font-face with licensed files.
-      Current stack uses system fonts fallback (macOS/iOS will match closely).
-  -->
+    <!-- SF Pro Font Import -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sf-pro-display@1.0.0/sf-pro-display.min.css">
 
-  <style>
-  /* -------------------------
-     styles (combined)
-     ------------------------- */
+    <style>
+        /* ------------------------------
+           RESET & VARIABLES
+        ------------------------------- */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  /* ---------------------------
-     Variables (colors, radius)
-     --------------------------- */
-  :root{
-    /* Colors */
-    --bg: #f7f8fb;
-    --surface: #ffffff;
-    --muted: #6d6d76;
-    --text: #222227;
-    --line: rgba(30,30,30,0.06);
-    --accent: rgba(110,145,255,0.12);
-    --glass-bg: rgba(255,255,255,0.55);
+        :root {
+            --bg-dark: #0d0d0d;
+            --bg-card: rgba(255,255,255,0.06);
+            --glass: rgba(255,255,255,0.08);
+            --border-light: rgba(255,255,255,0.12);
+            --text-light: #ffffff;
+            --text-grey: #e5e5e5;
+            --radius: 18px;
+            --shadow: 0 8px 24px rgba(0,0,0,0.4);
+            --padding: 28px;
+        }
 
-    /* Shadows */
-    --shadow-soft: 0 8px 30px rgba(18,20,26,0.06);
-    --shadow-subtle: 0 2px 10px rgba(18,20,26,0.04);
+        body {
+            font-family: 'SF Pro Text', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
 
-    /* Radius */
-    --radius-sm: 12px;
-    --radius-md: 16px;
-    --radius-lg: 20px;
+        /* ------------------------------
+           NAVBAR
+        ------------------------------- */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            backdrop-filter: blur(18px);
+            background: rgba(20,20,20,0.55);
+            padding: 16px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-light);
+            z-index: 100;
+        }
 
-    /* Spacing baseline */
-    --pad-block: 28px;
-    --container-width: 1200px;
-    --max-width: 1100px;
-    --transition: 320ms cubic-bezier(.2,.9,.3,1);
+        .nav-title {
+            font-family: 'SF Pro Display';
+            font-size: 18px;
+            font-weight: 600;
+        }
 
-    /* Typography sizes */
-    --h1: 38px;
-    --h2: 24px;
-    --h3: 18px;
-    --body: 16px;
-  }
+        /* ------------------------------
+           HERO SECTION
+        ------------------------------- */
+        .hero {
+            padding-top: 140px;
+            text-align: center;
+            padding-bottom: 80px;
+        }
 
-  /* ---------------------------
-     Font stack (SF Pro recommended)
-     --------------------------- */
-  html{
-    font-family: "SF Pro Text","SF Pro Display",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
-    background: linear-gradient(180deg, var(--bg) 0%, #fbfbfd 100%);
-    color: var(--text);
-    font-size: 16px;
-    line-height: 1.45;
-  }
+        .hero h1 {
+            font-family: 'SF Pro Display';
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
 
-  /* Reset */
-  *{box-sizing:border-box}
-  html,body,div,section,article,header,footer,nav,main{margin:0;padding:0}
-  a{text-decoration:none;color:inherit}
-  ul{list-style:none}
-  img{max-width:100%;height:auto;display:block}
+        .hero p {
+            font-size: 18px;
+            color: var(--text-grey);
+            margin-bottom: 20px;
+        }
 
-  /* Container */
-  .container{
-    width:100%;
-    max-width:var(--max-width);
-    margin:0 auto;
-    padding-left:28px;
-    padding-right:28px;
-  }
+        .updated-date {
+            font-size: 14px;
+            color: #aaaaaa;
+            margin-top: 8px;
+        }
 
-  /* Page basic layout */
-  .page{
-    min-height:100vh;
-    background:var(--bg);
-  }
+        /* ------------------------------
+           CONTENT CARD
+        ------------------------------- */
+        .card {
+            background: var(--glass);
+            border: 1px solid var(--border-light);
+            padding: var(--padding);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin: 30px auto;
+            width: min(900px, 92%);
+            backdrop-filter: blur(20px);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.7s ease;
+        }
 
-  /* NAV */
-  .nav{
-    position:sticky;
-    top:0;
-    backdrop-filter: blur(8px);
-    background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.45));
-    border-bottom:1px solid var(--line);
-    z-index:80;
-  }
-  .nav__inner{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:20px;
-    padding:14px 0;
-  }
-  .nav__brand{
-    font-weight:700;
-    letter-spacing:-0.2px;
-    font-size:18px;
-  }
-  .nav__links{
-    display:flex;
-    gap:18px;
-    align-items:center;
-  }
-  .nav__link{
-    font-size:15px;
-    color:var(--muted);
-    padding:8px 10px;
-    border-radius:10px;
-    transition:var(--transition);
-  }
-  .nav__link:hover{color:var(--text); background:rgba(0,0,0,0.03)}
-  .nav__toggle{display:none; background:transparent; border:0; padding:6px; cursor:pointer}
+        .card.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
 
-  /* Mobile menu */
-  .nav__mobile{
-    display:none;
-    padding:16px 0;
-    border-top:1px solid var(--line);
-    background: linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0.45));
-    backdrop-filter: blur(10px);
-  }
-  .nav__mobile-inner{display:flex;flex-direction:column;gap:12px;padding:12px 0}
-  .nav__mobile-link{padding:12px;border-radius:12px;color:var(--text)}
+        .card h2 {
+            font-family: 'SF Pro Display';
+            font-size: 28px;
+            margin-bottom: 14px;
+            font-weight: 700;
+        }
 
-  /* HERO */
-  .hero{
-    display:flex;
-    gap:40px;
-    align-items:center;
-    padding:48px 0;
-  }
-  .hero__meta{flex:1;max-width:720px}
-  .hero__eyebrow{
-    font-size:12px;
-    color:var(--muted);
-    letter-spacing:1px;
-    text-transform:uppercase;
-    margin-bottom:12px;
-  }
-  .hero__title{
-    font-family:"SF Pro Display","SF Pro Text",-apple-system, sans-serif;
-    font-size:var(--h1);
-    margin-bottom:12px;
-    line-height:1.03;
-  }
-  .hero__subtitle{color:var(--muted); margin-bottom:20px}
-  .hero__ctas{display:flex;gap:12px}
+        .path {
+            margin-bottom: 14px;
+            padding-left: 10px;
+            border-left: 2px solid var(--border-light);
+        }
 
-  /* Buttons */
-  .btn{
-    display:inline-flex;align-items:center;gap:10px;padding:12px 16px;border-radius:14px;font-weight:600;cursor:pointer;border:1px solid transparent;
-    transition:var(--transition);
-  }
-  .btn--primary{
-    background:linear-gradient(180deg, rgba(110,145,255,0.14), rgba(110,145,255,0.08));
-    border-color: rgba(110,145,255,0.14);
-  }
-  .btn--primary:hover{transform:translateY(-3px)}
-  .btn--ghost{
-    background:transparent;
-    border:1px solid var(--line);
-  }
+        .path strong {
+            color: var(--text-light);
+        }
 
-  /* Hero panel (glass) */
-  .hero__panel{
-    width:320px;
-    min-height:160px;
-    padding:18px;
-    border-radius:var(--radius-md);
-    box-shadow:var(--shadow-soft);
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-    justify-content:center;
-    align-items:flex-start;
-  }
-  .glass{
-    background:var(--glass-bg);
-    border:1px solid rgba(255,255,255,0.6);
-    backdrop-filter: blur(10px) saturate(120%);
-    -webkit-backdrop-filter: blur(10px) saturate(120%);
-  }
+        /* ------------------------------
+           FOOTER
+        ------------------------------- */
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            font-size: 14px;
+            color: var(--text-grey);
+            border-top: 1px solid var(--border-light);
+            margin-top: 50px;
+        }
 
-  /* Panel internals */
-  .panel__head{display:flex;align-items:center;gap:12px}
-  .panel__title{font-weight:700}
-  .panel__small{font-size:13px;color:var(--muted)}
-  .panel__list{font-size:14px;color:var(--muted)}
-
-  /* Separator */
-  .separator{height:1px;background:var(--line);margin:18px 0}
-
-  /* SECTION HEADER */
-  .section-header{display:flex;gap:16px;align-items:center;padding:18px 0}
-  .section-header__title{font-size:var(--h2);margin-bottom:6px}
-  .section-header__desc{color:var(--muted);font-size:14px}
-  .section-header__icon{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(240,245,255,0.6), rgba(255,255,255,0.55));box-shadow:var(--shadow-subtle)}
-
-  /* GRID SYSTEM */
-  .grid{display:grid;gap:20px}
-  .grid--3{grid-template-columns:repeat(3, 1fr)}
-  .grid--2{grid-template-columns:repeat(2, 1fr)}
-  @media (max-width:1000px){ .grid--3{grid-template-columns:repeat(2,1fr)} }
-  @media (max-width:640px){ .grid--3,.grid--2{grid-template-columns:1fr} }
-
-  /* PILLAR CARDS */
-  .pillar{
-    background:var(--surface);
-    border-radius:var(--radius-sm);
-    padding:24px;
-    box-shadow:var(--shadow-subtle);
-    border:1px solid var(--line);
-    transition: transform var(--transition), box-shadow var(--transition), opacity var(--transition);
-  }
-  .pillar--highlight{border-color:rgba(110,145,255,0.12); box-shadow:0 12px 34px rgba(110,145,255,0.06)}
-  .pillar__head{display:flex;align-items:center;gap:12px;margin-bottom:10px}
-  .pillar__num{width:44px;height:44px;border-radius:10px;background:linear-gradient(180deg, rgba(250,250,255,0.9), rgba(245,249,255,1));display:flex;align-items:center;justify-content:center;font-weight:700}
-  .pillar__title{font-size:var(--h3);margin:0}
-  .pillar__list{margin-top:8px;color:var(--muted);line-height:1.5}
-
-  /* ACCOUNTABILITY GLASS */
-  .accountability__glass{
-    padding:24px;border-radius:var(--radius-lg);margin:18px 0;box-shadow:var(--shadow-soft);
-  }
-  .accountability__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:12px}
-  .accountability__item{background:rgba(255,255,255,0.6);padding:16px;border-radius:12px;border:1px solid var(--line)}
-
-  /* FOOTER */
-  .footer{padding:40px 0;border-top:1px solid var(--line);margin-top:30px}
-  .footer__inner{display:flex;align-items:center;justify-content:space-between}
-  .footer__brand{font-weight:700;font-size:16px}
-  .footer__small{color:var(--muted);font-size:13px}
-  .footer__nav{display:flex;gap:14px}
-  .footer__link{color:var(--muted);font-size:14px}
-
-  /* ---------------------------
-     Scroll reveal initial state (JS toggles .is-visible)
-     --------------------------- */
-  [data-reveal]{opacity:0;transform:translateY(8px);transition:opacity var(--transition), transform var(--transition)}
-  [data-reveal].is-visible{opacity:1;transform:none}
-
-  /* Hover/focus states */
-  .pillar:hover{transform:translateY(-6px)}
-
-  /* Responsive adjustments */
-  @media (max-width:900px){
-    .hero{flex-direction:column;align-items:flex-start;padding:32px 0}
-    .hero__panel{width:100%}
-    .nav__links{display:none}
-    .nav__toggle{display:block}
-    .container{padding-left:20px;padding-right:20px}
-    .footer__inner{flex-direction:column;gap:14px;align-items:flex-start}
-  }
-
-  /* Accessibility: reduce motion */
-  @media (prefers-reduced-motion: reduce){
-    :root{--transition: 100ms ease}
-    *{transition:none!important;animation:none!important}
-  }
-
-  /* small utility spacing */
-  .mt-8{margin-top:8px}
-  .mb-8{margin-bottom:8px}
-  </style>
+        /* ------------------------------
+           RESPONSIVE
+        ------------------------------- */
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 34px; }
+            .navbar { padding: 14px 20px; }
+        }
+    </style>
 </head>
-<body class="page">
 
-  <!-- iOS-style navbar -->
-  <header class="nav nav--sticky">
-    <div class="nav__inner container">
-      <a href="#" class="nav__brand">The Code</a>
+<body>
 
-      <nav class="nav__links" aria-label="Main navigation">
-        <a class="nav__link" href="#hero">Home</a>
-        <a class="nav__link" href="#pillars">Pillars</a>
-        <a class="nav__link" href="#accountability">Accountability</a>
-        <a class="nav__link" href="#footer">Contact</a>
-      </nav>
-
-      <button class="nav__toggle" id="navToggle" aria-expanded="false" aria-label="Open menu">
-        <svg width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <rect x="0.5" y="0.5" width="21" height="1.5" rx="0.75" />
-          <rect x="0.5" y="7" width="21" height="1.5" rx="0.75" />
-          <rect x="0.5" y="14.5" width="21" height="1.5" rx="0.75" />
-        </svg>
-      </button>
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <div class="nav-title">CPT – Code of Personal Transformation</div>
     </div>
 
-    <!-- mobile menu (glass) -->
-    <div class="nav__mobile" id="navMobile" aria-hidden="true">
-      <div class="nav__mobile-inner container">
-        <a class="nav__mobile-link" href="#hero">Home</a>
-        <a class="nav__mobile-link" href="#pillars">Pillars</a>
-        <a class="nav__mobile-link" href="#accountability">Accountability</a>
-        <a class="nav__mobile-link" href="#footer">Contact</a>
-      </div>
-    </div>
-  </header>
-
-  <main>
     <!-- HERO -->
-    <section id="hero" class="hero container" data-reveal>
-      <div class="hero__meta">
-        <p class="hero__eyebrow">PERSONAL FRAMEWORK</p>
-        <h1 class="hero__title">The Code of Personal Transformation</h1>
-        <p class="hero__subtitle">Updated — 2025 Edition. A clean, actionable framework to build discipline, focus, and wellbeing.</p>
-        <div class="hero__ctas">
-          <a class="btn btn--primary" href="#pillars">View Pillars</a>
-          <a class="btn btn--ghost" href="#accountability">Accountability</a>
-        </div>
-      </div>
-
-      <div class="hero__panel glass" aria-hidden="true">
-        <div class="panel__head">
-          <svg class="icon" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 2L3 7v6c0 5 3.8 9.9 9 11 5.2-1.1 9-6 9-11V7l-9-5z" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
-          </svg>
-          <div>
-            <div class="panel__title">Updated 2025</div>
-            <div class="panel__small">Pillars • Paths • Accountability</div>
-          </div>
-        </div>
-
-        <ul class="panel__list">
-          <li>9 Pillars — Structured Paths</li>
-          <li>Daily Accountability System</li>
-          <li>Reward & Punishment Mechanics</li>
-        </ul>
-      </div>
+    <section class="hero">
+        <h1>CPT – THE CODE OF PERSONAL TRANSFORMATION</h1>
+        <p>Updated Edition – 2025</p>
+        <div class="updated-date">Updated on: <strong>1 Dec 2025</strong></div>
     </section>
 
-    <div class="separator container" aria-hidden="true"></div>
+    <!-- CONTENT CARDS -->
+    <!-- Every word kept exactly -->
 
-    <!-- PILLARS GRID -->
-    <section id="pillars" class="pillars container">
-      <header class="section-header" data-reveal>
-        <div class="section-header__icon">
-          <svg class="icon" width="34" height="34" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M3 12h18" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
-            <path d="M6 8h12M6 16h12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-          </svg>
+    <div class="card">
+        <h2>PILLAR 1: UNDERSTANDING MYSELF</h2>
+        <div class="path"><strong>Path 1:</strong> Self-Reflection – Regular reflection on thoughts & actions</div>
+        <div class="path"><strong>Path 2:</strong> Self-Awareness – Know values, triggers, beliefs</div>
+        <div class="path"><strong>Path 3:</strong> Personality Exploration – Use tests/tools to know strengths & weaknesses</div>
+    </div>
+
+    <div class="card">
+        <h2>PILLAR 2: FITNESS</h2>
+        <div class="path"><strong>Path 1:</strong> Morning Routine – Wake 6:30 AM</div>
+        <div class="path"><strong>Path 2:</strong> Exercise – Walk/run 30 mins daily</div>
+        <div class="path"><strong>Path 3:</strong> Healthy Eating – Balanced diet</div>
+        <div class="path"><strong>Path 4:</strong> Mental Fitness – Cognitive practice</div>
+        <div class="path"><strong>Path 5:</strong> Rest – Sleep 7–8 hrs; bed 10:30–11:00 PM</div>
+    </div>
+
+    <div class="card">
+        <h2>PILLAR 3: KNOWLEDGE</h2>
+        <div class="path"><strong>Path 1:</strong> Lifelong Learning</div>
+        <div class="path"><strong>Path 2:</strong> Critical Thinking</div>
+        <div class="path"><strong>Path 3:</strong> Apply Knowledge in real life</div>
+    </div>
+
+    <div class="card">
+        <h2>PILLAR 4: ENTERTAINMENT</h2>
+        <div class="path"><strong>Path 1:</strong> Mindful Content – No harmful content</div>
+        <div class="path"><strong>Path 2:</strong> Balanced Leisure – Work first, fun later</div>
+        <div class="path"><strong>Path 3:</strong> Movies allowed; series optional</div>
+    </div>
+
+    <div class="card">
+        <h2>PILLAR 5: DIGITAL WELL-BEING (UPDATED)</h2>
+        <div class="path"><strong>Path 1:</strong> Content Quality – Only positive/educational; no harmful content</div>
+        <div class="path"><strong>Path 2:</strong> YouTube Videos – After 12 PM; max 3 useful videos before 5 PM</div>
+        <div class="path"><strong>Path 3:</strong> YouTube Shorts – Only after 5 PM</div>
+        <div class="path"><strong>Path 4:</strong> Movies – Allowed 10 AM–10:30 PM</div>
+        <div class="path"><strong>Path 5:</strong> Digital Boundaries – No phone first 30 mins; no random browsing; notifications off</div>
+        <div class="path"><strong>Path 6:</strong> Weekend Flex – +1 hr entertainment; shorts still after 5 PM</div>
+        <div class="path"><strong>Path 7:</strong> Bonus Growth – Write 1 line after any educational video</div>
+    </div>
+
+    <div class="card">
+        <h2>PILLAR 6: SPIRITUAL WELL-BEING</h2>
+        <div class="path"><strong>Path 1:</strong> Meditation & Prayer</div>
+        <div class="path"><strong>Path 2:</strong> Introspection</div>
+        <div class="path"><strong>Path 3:</strong> Spiritual Study</div>
+        <div class="path"><strong>Path 4:</strong> Daily Gratitude</div>
+    </div>
+
+    <div class="card">
+        <h2>PILLAR 7: TIME MANAGEMENT</h2>
+        <div class="path"><strong>Path 1:</strong> Prioritize important tasks</div>
+        <div class="path"><strong>Path 2:</strong> Reflect & adjust daily</div>
+        <div class="path"><strong>Path 3:</strong> Follow a clear schedule</div>
+    </div>
+
+    <div class="card">
+        <h2>PILLAR 8: REVISION & ADAPTATION</h2>
+        <div class="path"><strong>Path 1:</strong> Revise only when needed</div>
+        <div class="path"><strong>Path 2:</strong> Core pillars stay unchanged</div>
+        <div class="path"><strong>Path 3:</strong> Reflect on alignment</div>
+        <div class="path"><strong>Path 4:</strong> Update system in a structured way</div>
+    </div>
+
+    <div class="card">
+        <h2>PILLAR 9: ACCOUNTABILITY & ENFORCEMENT (NEW)</h2>
+
+        <div class="path"><strong>Path 1: Minor Violations</strong><br>
+        Includes: skipping walk, phone in first 30 mins, sleeping after 11, skipping meditation<br>
+        Punishment: 5-min meditation + 10-min walk next day
         </div>
-        <div>
-          <h2 class="section-header__title">Final Pillar List</h2>
-          <p class="section-header__desc">A concise breakdown of each pillar and its explicit paths.</p>
+
+        <div class="path"><strong>Path 2: Major Violations</strong><br>
+        Includes: no study, no job application, YouTube before 12 PM, watching Shorts before 5 PM<br>
+        Punishment: 1-hour No-Phone Zone (phone in another room)
         </div>
-      </header>
 
-      <div class="grid grid--3" id="pillarsGrid">
-        <!-- Pillar 1 -->
-        <article class="pillar pillar--card" data-reveal>
-          <div class="pillar__head">
-            <div class="pillar__num">1</div>
-            <h3 class="pillar__title">Understand Myself</h3>
-          </div>
-          <div class="pillar__body">
-            <ol class="pillar__list">
-              <li><strong>Self-Reflection</strong> — Regularly set aside time to reflect.</li>
-              <li><strong>Self-Awareness</strong> — Identify values & triggers.</li>
-              <li><strong>Personality Exploration</strong> — Use assessments to learn patterns.</li>
-            </ol>
-          </div>
-        </article>
-
-        <!-- Pillar 2 -->
-        <article class="pillar pillar--card" data-reveal>
-          <div class="pillar__head">
-            <div class="pillar__num">2</div>
-            <h3 class="pillar__title">Fitness</h3>
-          </div>
-          <div class="pillar__body">
-            <ol class="pillar__list">
-              <li>Morning Routine — Wake at 6:00 am.</li>
-              <li>Regular Exercise — 30+ minutes daily.</li>
-              <li>Healthy Eating — Balanced diet.</li>
-              <li>Mental Fitness — Cognitive exercises.</li>
-              <li>Adequate Rest — 7–8 hours; bedtime 10:00–10:30 pm.</li>
-            </ol>
-          </div>
-        </article>
-
-        <!-- Pillar 3 -->
-        <article class="pillar pillar--card" data-reveal>
-          <div class="pillar__head">
-            <div class="pillar__num">3</div>
-            <h3 class="pillar__title">Knowledge</h3>
-          </div>
-          <div class="pillar__body">
-            <ol class="pillar__list">
-              <li>Lifelong Learning</li>
-              <li>Critical Thinking</li>
-              <li>Practical Application</li>
-            </ol>
-          </div>
-        </article>
-
-        <!-- Pillar 4 -->
-        <article class="pillar pillar--card" data-reveal>
-          <div class="pillar__head">
-            <div class="pillar__num">4</div>
-            <h3 class="pillar__title">Entertainment</h3>
-          </div>
-          <div class="pillar__body">
-            <ol class="pillar__list">
-              <li>Mindful Consumption</li>
-              <li>Balanced Leisure</li>
-              <li>Restful Entertainment</li>
-            </ol>
-          </div>
-        </article>
-
-        <!-- Pillar 5 -->
-        <article class="pillar pillar--card" data-reveal>
-          <div class="pillar__head">
-            <div class="pillar__num">5</div>
-            <h3 class="pillar__title">Digital Well-Being</h3>
-          </div>
-          <div class="pillar__body">
-            <ol class="pillar__list">
-              <li>Mindful Social Media Use</li>
-              <li>Digital Detox</li>
-              <li>Productive Browsing</li>
-              <li>Entertainment Balance — YouTube after 5 pm</li>
-            </ol>
-          </div>
-        </article>
-
-        <!-- Pillar 6 -->
-        <article class="pillar pillar--card" data-reveal>
-          <div class="pillar__head">
-            <div class="pillar__num">6</div>
-            <h3 class="pillar__title">Spiritual Well-Being</h3>
-          </div>
-          <div class="pillar__body">
-            <ol class="pillar__list">
-              <li>Meditation & Prayer</li>
-              <li>Self-Reflection</li>
-              <li>Spiritual Study</li>
-              <li>Gratitude Practice</li>
-            </ol>
-          </div>
-        </article>
-
-        <!-- Pillar 7 -->
-        <article class="pillar pillar--card" data-reveal>
-          <div class="pillar__head">
-            <div class="pillar__num">7</div>
-            <h3 class="pillar__title">Time Management</h3>
-          </div>
-          <div class="pillar__body">
-            <ol class="pillar__list">
-              <li>Prioritization</li>
-              <li>Reflect & Adjust</li>
-              <li>Scheduling</li>
-            </ol>
-          </div>
-        </article>
-
-        <!-- Pillar 8 -->
-        <article class="pillar pillar--card" data-reveal>
-          <div class="pillar__head">
-            <div class="pillar__num">8</div>
-            <h3 class="pillar__title">Revision & Adaptation</h3>
-          </div>
-          <div class="pillar__body">
-            <ol class="pillar__list">
-              <li>Revisions when necessary</li>
-              <li>Core pillars stay stable</li>
-              <li>Reflective Review</li>
-              <li>Systematic Revision</li>
-            </ol>
-          </div>
-        </article>
-
-        <!-- Pillar 9 -->
-        <article class="pillar pillar--card pillar--highlight" data-reveal>
-          <div class="pillar__head">
-            <div class="pillar__num">9</div>
-            <h3 class="pillar__title">Accountability & Enforcement</h3>
-          </div>
-          <div class="pillar__body">
-            <ol class="pillar__list">
-              <li><strong>Minor Violations</strong> — 5-min meditation + 10-min walk next day.</li>
-              <li><strong>Major Violations</strong> — 1-hour No Phone Zone.</li>
-              <li><strong>Extreme Violations</strong> — Full entertainment ban next day.</li>
-              <li><strong>Rewards</strong> — 7-day ₹100 treat, 14-day movie, 30-day useful purchase.</li>
-              <li><strong>Daily Accountability</strong> — Nightly 3-question check.</li>
-            </ol>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <!-- ACCOUNTABILITY DETAILS GLASS PANEL -->
-    <section id="accountability" class="accountability container">
-      <header class="section-header" data-reveal>
-        <div class="section-header__icon">
-          <svg class="icon" width="34" height="34" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 3v6l4 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.2" fill="none"/>
-          </svg>
+        <div class="path"><strong>Path 3: Extreme Violations</strong><br>
+        Includes: 2–4 hrs wasted on phone, skipped study + job, losing control<br>
+        Punishment: Next day = 0 mins YouTube, no entertainment
         </div>
-        <div>
-          <h2 class="section-header__title">Accountability & Rules</h2>
-          <p class="section-header__desc">Exact rules for punishments and rewards so the system is enforceable and clear.</p>
-        </div>
-      </header>
 
-      <div class="glass accountability__glass" data-reveal>
-        <h3 class="accountability__title">Enforcement at a glance</h3>
-        <div class="accountability__grid">
-          <div class="accountability__item">
-            <h4>Minor</h4>
-            <p>5-min meditation + 10-min walk next day</p>
-          </div>
-          <div class="accountability__item">
-            <h4>Major</h4>
-            <p>1-hour “No Phone Zone” with phone in another room</p>
-          </div>
-          <div class="accountability__item">
-            <h4>Extreme</h4>
-            <p>Full entertainment ban; 0 minutes YouTube next day</p>
-          </div>
+        <div class="path"><strong>Path 4: Rewards</strong><br>
+        7-Day Streak → Treat under ₹100<br>
+        14-Day Streak → 1 movie<br>
+        30-Day Streak → Buy something useful
         </div>
-      </div>
-    </section>
+
+        <div class="path"><strong>Path 5: Daily Accountability</strong><br>
+        Every night ask:<br><br>
+        Did I follow the CPT?<br>
+        What did I break?<br>
+        What punishment applies?
+        </div>
+
+        <div class="path"><strong>Path 6: Integrity Rule</strong><br>
+        If punishment is skipped → counts as Extreme Violation<br>
+        Rewards only if all days fully followed
+        </div>
+    </div>
 
     <!-- FOOTER -->
-    <footer id="footer" class="footer container">
-      <div class="footer__inner">
-        <div>
-          <div class="footer__brand">The Code</div>
-          <p class="footer__small">Build discipline. Build life. © 2025</p>
-        </div>
-
-        <nav class="footer__nav" aria-label="Footer">
-          <a class="footer__link" href="#hero">Home</a>
-          <a class="footer__link" href="#pillars">Pillars</a>
-          <a class="footer__link" href="#accountability">Accountability</a>
-        </nav>
-      </div>
+    <footer>
+        © 2025 CPT – Code of Personal Transformation. All Rights Reserved.
     </footer>
-  </main>
 
-  <script>
-  /* ============================
-     scripts (combined)
-     Vanilla JS:
-     - mobile nav toggle
-     - smooth scrolling for anchor links
-     - scroll reveal animations (IntersectionObserver)
-     - accessible menu behavior
-     ============================ */
+    <!-- JAVASCRIPT -->
+    <script>
+        // Scroll reveal animation
+        const cards = document.querySelectorAll('.card');
 
-  (function(){
-    /* Mobile nav toggle */
-    const navToggle = document.getElementById('navToggle');
-    const navMobile = document.getElementById('navMobile');
+        function revealOnScroll() {
+            const trigger = window.innerHeight * 0.88;
 
-    if (navToggle) {
-      navToggle.addEventListener('click', () => {
-        const expanded = navToggle.getAttribute('aria-expanded') === 'true';
-        navToggle.setAttribute('aria-expanded', String(!expanded));
-        if (!navMobile) return;
-        navMobile.setAttribute('aria-hidden', String(expanded));
-        navMobile.style.display = expanded ? 'none' : 'block';
-        if (!expanded) {
-          navMobile.style.opacity = 0;
-          requestAnimationFrame(() => navMobile.style.opacity = 1);
+            cards.forEach(card => {
+                const top = card.getBoundingClientRect().top;
+                if (top < trigger) card.classList.add('show');
+            });
         }
-      });
-    }
 
-    /* Close mobile menu when link clicked */
-    document.querySelectorAll('.nav__mobile-link').forEach(a => {
-      a.addEventListener('click', () => {
-        navToggle && navToggle.setAttribute('aria-expanded','false');
-        if (navMobile) { navMobile.style.display = 'none'; navMobile.setAttribute('aria-hidden','true'); }
-      });
-    });
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+    </script>
 
-    /* Smooth scrolling for anchor links */
-    document.querySelectorAll('a[href^="#"]').forEach(link => {
-      link.addEventListener('click', (e) => {
-        const href = link.getAttribute('href');
-        if (href === '#') return;
-        const target = document.querySelector(href);
-        if (target) {
-          e.preventDefault();
-          const topOffset = 12;
-          const rect = target.getBoundingClientRect();
-          const scrollTop = window.scrollY + rect.top - topOffset;
-          window.scrollTo({ top: scrollTop, behavior: 'smooth' });
-        }
-      });
-    });
-
-    /* Scroll reveal using IntersectionObserver */
-    (function initScrollReveal(){
-      const nodes = document.querySelectorAll('[data-reveal]');
-      if (!('IntersectionObserver' in window)) {
-        nodes.forEach(n => n.classList.add('is-visible'));
-        return;
-      }
-
-      const io = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
-            io.unobserve(entry.target);
-          }
-        });
-      }, {
-        threshold: 0.1,
-        rootMargin: '0px 0px -10% 0px'
-      });
-
-      nodes.forEach(n => io.observe(n));
-    })();
-
-    /* Header shadow on scroll */
-    (function headerScrollEffect(){
-      const header = document.querySelector('.nav');
-      if (!header) return;
-      window.addEventListener('scroll', () => {
-        const y = window.scrollY || document.documentElement.scrollTop;
-        if (y > 10) header.style.boxShadow = '0 6px 18px rgba(18,20,26,0.06)';
-        else header.style.boxShadow = 'none';
-      }, { passive: true });
-    })();
-
-  })();
-  </script>
 </body>
 </html>
