@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Weather App</title>
+
+<style>
+  body {
+    margin: 0;
+    background: #121c2d; /* dark mode */
+    font-family: Arial, sans-serif;
+  }
+
+  .container {
+    width: 100%;
+    height: 100vh;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 12px;
+  }
+</style>
+</head>
+
+<body>
+  <div class="container">
+    <iframe title="weather" width="600" height="373.5" src="https://app.powerbi.com/view?r=eyJrIjoiNTI0MjVhYzMtNDA3My00YWY1LWEwNDEtY2JiYzFhODQ5OTBkIiwidCI6Ijk3MmNiNWUxLWIyN2EtNDZhYy1iODYxLTRjMjlhNjY0YTczMyJ9" frameborder="0" allowFullScreen="true"></iframe>
+  </div>
+</body>
+</html>
